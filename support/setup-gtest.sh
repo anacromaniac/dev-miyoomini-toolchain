@@ -1,7 +1,15 @@
 #!/bin/sh
+set -e
+
+# Build GoogleTest from the sources shipped by the libgtest-dev package.
+# The CMake build is in-source, so the archives are produced next to the
+# sources (there is no `lib/` subdirectory). Install them into /usr/lib
+# where the linker looks.
 cd /usr/src/gtest
-cmake -DCMAKE_C_COMPILER="${CROSS_COMPILE}gcc" -DCMAKE_CXX_COMPILER="${CROSS_COMPILE}g++" CMakeLists.txt
+cmake CMakeLists.txt
 make
-cp /usr/src/gtest/lib/*.a /usr/lib
-ln -s /usr/lib/libgtest.a /usr/local/lib/libgtest.a
-ln -s /usr/lib/libgtest_main.a /usr/local/lib/libgtest_main.a
+cp ./*.a /usr/lib/
+
+# Refresh the symlinks idempotently; previously they were left dangling.
+ln -sf /usr/lib/libgtest.a /usr/local/lib/libgtest.a
+ln -sf /usr/lib/libgtest_main.a /usr/local/lib/libgtest_main.a
